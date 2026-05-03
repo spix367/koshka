@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services — Emas Shop</title>
+  <link rel="stylesheet" href="{% static 'aplication/main.css' %}">
+  <link rel="stylesheet" href="{% static 'aplication/services.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <span class="logo-dot"></span>
+        Emas Shop
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/" class="nav-link">Home</a></li>
+        <li><a href="/about" class="nav-link">About</a></li>
+        <li><a href="/services" class="nav-link active">Services</a></li>
+        <li><a href="/contact" class="nav-link">Contact</a></li>
+        <li><a href="/login" class="nav-cta">Sign In</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Hero -->
+    <section class="services-hero">
+      <div class="services-hero-inner">
+        <span class="page-tag">What We Offer</span>
+        <h1 class="services-title">Everything You <em>Need</em></h1>
+        <p class="services-sub">From shopping to delivery — we've got you covered at every step.</p>
+      </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="services-section">
+      <div class="container">
+        <div class="services-grid">
+
+          <div class="service-card featured">
+            <div class="service-icon">🛍️</div>
+            <h3>Online Shopping</h3>
+            <p>Browse hundreds of curated products across fashion, home, electronics, and more. New arrivals every week.</p>
+            <a href="#" class="service-link">Shop Now →</a>
+          </div>
+
+          <div class="service-card">
+            <div class="service-icon">🚚</div>
+            <h3>Fast Delivery</h3>
+            <p>Same-day dispatch on orders placed before 2pm. Track your package in real time from warehouse to door.</p>
+            <a href="#" class="service-link">Learn More →</a>
+          </div>
+
+          <div class="service-card">
+            <div class="service-icon">↩️</div>
+            <h3>Easy Returns</h3>
+            <p>30-day hassle-free returns. Print a label, drop it off, done. Refunds processed within 48 hours.</p>
+            <a href="#" class="service-link">Return Policy →</a>
+          </div>
+
+          <div class="service-card">
+            <div class="service-icon">💳</div>
+            <h3>Secure Payments</h3>
+            <p>Pay with card, bank transfer, or installments. All transactions are encrypted and fully secure.</p>
+            <a href="#" class="service-link">Payment Options →</a>
+          </div>
+
+          <div class="service-card">
+            <div class="service-icon">🎁</div>
+            <h3>Gift Cards</h3>
+            <p>Give the gift of choice. Send digital gift cards instantly to anyone, in any amount.</p>
+            <a href="#" class="service-link">Buy Gift Card →</a>
+          </div>
+
+          <div class="service-card">
+            <div class="service-icon">💬</div>
+            <h3>24/7 Support</h3>
+            <p>Our support team is always available via live chat, email, or phone. Real humans, not bots.</p>
+            <a href="#" class="service-link">Contact Us →</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing-section">
+      <div class="container">
+        <span class="section-label">Membership</span>
+        <h2 class="section-title">Choose Your Plan</h2>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <span class="plan-name">Free</span>
+            <div class="plan-price">$0<span>/mo</span></div>
+            <ul class="plan-features">
+              <li>✓ Browse all products</li>
+              <li>✓ Standard delivery</li>
+              <li>✓ Email support</li>
+              <li class="disabled">✗ Free returns</li>
+              <li class="disabled">✗ Early access</li>
+            </ul>
+            <a href="#" class="btn btn-ghost">Get Started</a>
+          </div>
+          <div class="pricing-card popular">
+            <span class="popular-badge">Most Popular</span>
+            <span class="plan-name">Pro</span>
+            <div class="plan-price">$9<span>/mo</span></div>
+            <ul class="plan-features">
+              <li>✓ Browse all products</li>
+              <li>✓ Free fast delivery</li>
+              <li>✓ Priority support</li>
+              <li>✓ Free returns</li>
+              <li>✓ Early access to sales</li>
+            </ul>
+            <a href="#" class="btn btn-primary">Get Pro</a>
+          </div>
+          <div class="pricing-card">
+            <span class="plan-name">Business</span>
+            <div class="plan-price">$29<span>/mo</span></div>
+            <ul class="plan-features">
+              <li>✓ Everything in Pro</li>
+              <li>✓ Bulk order discounts</li>
+              <li>✓ Dedicated account manager</li>
+              <li>✓ Custom invoicing</li>
+              <li>✓ API access</li>
+            </ul>
+            <a href="#" class="btn btn-ghost">Contact Sales</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Emas Shop</span>
+      <p class="footer-copy">&copy; 2026 Emas Shop. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('navToggle');
+    const links = document.getElementById('navLinks');
+    toggle.addEventListener('click', () => {
+      links.classList.toggle('open');
+      toggle.classList.toggle('active');
+    });
+    window.addEventListener('scroll', () => {
+      document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 40);
+    });
+  </script>
+
+</body>
+</html>

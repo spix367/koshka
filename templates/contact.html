@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Emas Shop</title>
+  <link rel="stylesheet" href="{% static 'aplication/main.css' %}">
+  <link rel="stylesheet" href="{% static 'aplication/contact.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <span class="logo-dot"></span>
+        Emas Shop
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/" class="nav-link">Home</a></li>
+        <li><a href="/about" class="nav-link">About</a></li>
+        <li><a href="/services" class="nav-link">Services</a></li>
+        <li><a href="/contact" class="nav-link active">Contact</a></li>
+        <li><a href="/login" class="nav-cta">Sign In</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Hero -->
+    <section class="contact-hero">
+      <div class="contact-hero-inner">
+        <span class="page-tag">Get In Touch</span>
+        <h1 class="contact-title">We'd Love to <em>Hear</em> From You</h1>
+        <p class="contact-sub">Have a question, feedback, or just want to say hello? We're here.</p>
+      </div>
+    </section>
+
+    <!-- Contact Content -->
+    <section class="contact-section">
+      <div class="container">
+        <div class="contact-grid">
+
+          <!-- Info -->
+          <div class="contact-info">
+            <h2>Let's Talk</h2>
+            <p>Our team typically responds within a few hours during business days.</p>
+
+            <div class="info-items">
+              <div class="info-item">
+                <span class="info-icon">📧</span>
+                <div>
+                  <strong>Email</strong>
+                  <a href="mailto:hello@emasshop.com">hello@emasshop.com</a>
+                </div>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">📞</span>
+                <div>
+                  <strong>Phone</strong>
+                  <a href="tel:+1234567890">+1 (234) 567-890</a>
+                </div>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">📍</span>
+                <div>
+                  <strong>Address</strong>
+                  <span>123 Shop Street, City, Country</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">🕐</span>
+                <div>
+                  <strong>Hours</strong>
+                  <span>Mon–Fri, 9am – 6pm</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="social-links">
+              <a href="#" class="social-btn">Instagram</a>
+              <a href="#" class="social-btn">Twitter</a>
+              <a href="#" class="social-btn">Facebook</a>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="contact-form-wrap">
+            <div class="contact-form">
+              <div class="form-group">
+                <label for="name">Your Name</label>
+                <input type="text" id="name" placeholder="John Doe" />
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="john@example.com" />
+              </div>
+              <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" id="subject" placeholder="How can we help?" />
+              </div>
+              <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" rows="5" placeholder="Write your message here..."></textarea>
+              </div>
+              <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()">Send Message</button>
+              <p class="form-success" id="successMsg">✓ Message sent! We'll get back to you soon.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Emas Shop</span>
+      <p class="footer-copy">&copy; 2026 Emas Shop. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('navToggle');
+    const links = document.getElementById('navLinks');
+    toggle.addEventListener('click', () => {
+      links.classList.toggle('open');
+      toggle.classList.toggle('active');
+    });
+    window.addEventListener('scroll', () => {
+      document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    function handleSubmit() {
+      const btn = document.getElementById('submitBtn');
+      const msg = document.getElementById('successMsg');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.style.display = 'none';
+        msg.style.display = 'block';
+      }, 1000);
+    }
+  </script>
+
+</body>
+</html>
