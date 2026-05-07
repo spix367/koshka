@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="main-content">
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-tag">discover</span>
+      <h1 class="hero-title">Find Users</h1>
+      <p class="hero-sub">Search and connect with other members</p>
+    </div>
+  </section>
+
+  <div class="search-container">
+    <form method="get" class="search-form">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by username or name..." class="search-input">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    {% if query %}
+      {% if users %}
+        <div class="users-grid">
+          {% for profile in users %}
+            <div class="user-card card-glow">
+              <div class="user-card-avatar">
+                {% if profile.profile_picture %}
+                  <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.username }}">
+                {% else %}
+                  <span>{{ profile.user.username|first|upper }}</span>
+                {% endif %}
+              </div>
+              <div class="user-card-content">
+                <h3>{{ profile.user.username }}</h3>
+                <p class="user-card-bio">{{ profile.bio|truncatewords:10 }}</p>
+                <div class="user-card-stats">
+                  <span>{{ profile.user.posts.count }} posts</span>
+                  <span>{{ profile.user.followers.count }} followers</span>
+                </div>
+                <a href="{% url 'user_detail' profile.user.id %}" class="btn btn-primary btn-full">View Profile</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-results">
+          <p>No users found matching "{{ query }}"</p>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="search-hint">
+        <p>Start typing to search for users...</p>
+      </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

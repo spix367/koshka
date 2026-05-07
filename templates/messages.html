@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="main-content">
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-tag">messages</span>
+      <h1 class="hero-title">Messages</h1>
+      <p class="hero-sub">Connect with your followers</p>
+    </div>
+  </section>
+
+  <div class="messages-container">
+    <div class="messages-grid">
+      <aside class="conversations-list card-glow">
+        <div class="conversations-header">
+          <h3>Conversations</h3>
+          <a href="{% url 'search_users' %}" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">New</a>
+        </div>
+        {% if conversations %}
+          <ul class="conversation-items">
+            {% for msg in conversations %}
+              {% with other_user=msg.receiver|default:msg.sender %}
+              <li>
+                <a href="?user_id={{ other_user.id }}" class="conversation-item {% if selected_user_id|add:0 == other_user.id %}active{% endif %}">
+                  <div class="conversation-avatar">
+                    {% if other_user.userprofile.profile_picture %}
+                      <img src="{{ other_user.userprofile.profile_picture.url }}" alt="{{ other_user.username }}">
+                    {% else %}
+                      <span>{{ other_user.username|first|upper }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="conversation-info">
+                    <strong>{{ other_user.username }}</strong>
+                    <p>{{ msg.content|truncatewords:5 }}</p>
+                  </div>
+                </a>
+              </li>
+              {% endwith %}
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="no-conversations">
+            <p>No conversations yet</p>
+          </div>
+        {% endif %}
+      </aside>
+
+      <section class="messages-chat card-glow">
+        {% if selected_user_id %}
+          <div class="chat-header">
+            <h3>{{ selected_user.username }}</h3>
+          </div>
+
+          <div class="messages-list">
+            {% for message in messages %}
+              <div class="message-bubble {% if message.sender == user %}sent{% else %}received{% endif %}">
+                <p>{{ message.content }}</p>
+                <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <form method="post" action="{% url 'send_message' %}" class="message-form">
+            {% csrf_token %}
+            <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+            <textarea name="content" placeholder="Write a message..." class="message-input" rows="3"></textarea>
+            <button type="submit" class="btn btn-primary">Send</button>
+          </form>
+        {% else %}
+          <div class="no-chat-selected">
+            <p>Select a conversation to start messaging</p>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="main-content">
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-tag">create</span>
+      <h1 class="hero-title">New Post</h1>
+      <p class="hero-sub">Share a moment with your followers</p>
+    </div>
+  </section>
+
+  <div class="form-container">
+    <form method="post" enctype="multipart/form-data" class="create-post-form card-glow">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="caption" class="form-label">Caption</label>
+        <textarea name="caption" id="caption" class="form-input" rows="5" placeholder="What's on your mind?"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="image" class="form-label">Photo (optional)</label>
+        <div class="file-input-wrapper">
+          <input type="file" name="image" id="image" class="file-input" accept="image/*">
+          <label for="image" class="file-input-label">
+            <i>🖼️</i>
+            <span>
+              <strong>Choose a photo</strong><br>
+              or drag and drop
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href="{% url 'profile' %}" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary">Post</button>
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}

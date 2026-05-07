@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="main-content">
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-tag">profile</span>
+      <h1 class="hero-title">Your Profile</h1>
+      <p class="hero-sub">Manage your account information and profile picture</p>
+    </div>
+  </section>
+
+  <div class="profile-container">
+    <div class="profile-grid">
+      <section class="profile-card card-glow">
+        <div class="profile-card-banner">
+          <div class="banner-glow"></div>
+          <div class="banner-pill">Profile highlights</div>
+        </div>
+
+        <div class="profile-card-header">
+          <div class="profile-avatar ring-avatar">
+            {% if user_profile.profile_picture %}
+              <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+            {% else %}
+              <span>{{ user.username|first|upper }}</span>
+            {% endif %}
+          </div>
+          <div class="profile-heading">
+            <div class="profile-title-row">
+              <div>
+                <h2>{{ user.username }}</h2>
+                <p class="profile-subtitle">Instagram-inspired profile showcase</p>
+              </div>
+            </div>
+            <div class="profile-stats">
+              <div class="profile-stat">
+                <strong>{{ posts_count }}</strong>
+                <span>Posts</span>
+              </div>
+              <div class="profile-stat">
+                <strong>{{ follower_count }}</strong>
+                <span>Followers</span>
+              </div>
+              <div class="profile-stat">
+                <strong>{{ following_count }}</strong>
+                <span>Following</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <p class="profile-bio">{{ user_profile.bio|default:"Say something personal here. This is your bio." }}</p>
+          <div class="profile-info-grid">
+            <div class="profile-info-card">
+              <span class="profile-label">Email</span>
+              <strong>{{ user.email|default:"Not set" }}</strong>
+            </div>
+            <div class="profile-info-card">
+              <span class="profile-label">Member Since</span>
+              <strong>{{ user.date_joined|date:"M d, Y" }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-gallery">
+          <div class="gallery-header">
+            <div>
+              <h4>Your Posts</h4>
+              <p>{{ posts_count }} post{{ posts_count|pluralize }}</p>
+            </div>
+            <a href="{% url 'create_post' %}" class="btn btn-primary" style="margin: 0;">New Post</a>
+          </div>
+          {% if user_posts %}
+            <div class="gallery-grid">
+              {% for post in user_posts %}
+                <article class="gallery-item">
+                  {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post by {{ post.author.username }}">
+                  {% else %}
+                    <div class="gallery-empty">{{ post.caption|truncatewords:5 }}</div>
+                  {% endif %}
+                  <div class="gallery-meta">
+                    <strong>{{ post.created_at|date:"M d" }}</strong>
+                    <span>{{ post.likes_count }} likes · {{ post.comments_count }} comments</span>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="no-posts-message">
+              <p>No posts yet. <a href="{% url 'create_post' %}">Create your first post</a></p>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="profile-form-card card-glow">
+        <div class="section-head">
+          <span class="section-tag">Profile</span>
+          <h3>Update your profile</h3>
+        </div>
+
+        {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+              <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="auth-form profile-update-form">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+            <div class="file-input-wrapper">
+              <input type="file" name="{{ form.profile_picture.name }}" id="{{ form.profile_picture.id_for_label }}"
+                     class="file-input" accept="image/*">
+              <label for="{{ form.profile_picture.id_for_label }}" class="file-input-label">
+                <i>📷</i>
+                <span>
+                  <strong>Choose a photo</strong><br>
+                  or drag and drop
+                </span>
+              </label>
+            </div>
+            {% if form.profile_picture.errors %}
+              <div class="form-error">
+                {% for error in form.profile_picture.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+            {% if user_profile.profile_picture %}
+              <div class="form-hint">
+                Current: <a href="{{ user_profile.profile_picture.url }}" target="_blank">View current image</a>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+            <textarea name="{{ form.bio.name }}" id="{{ form.bio.id_for_label }}"
+                      class="form-input" rows="4" placeholder="Tell us about yourself...">{{ form.bio.value|default:"" }}</textarea>
+            {% if form.bio.errors %}
+              <div class="form-error">
+                {% for error in form.bio.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">Save changes</button>
+        </form>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}

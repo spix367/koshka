@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="main-content">
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-tag">profile</span>
+      <h1 class="hero-title">{{ target_user.username }}</h1>
+      <p class="hero-sub">{{ user_profile.bio|default:"No bio yet" }}</p>
+    </div>
+  </section>
+
+  <div class="profile-container">
+    <div class="profile-grid">
+      <section class="profile-card card-glow">
+        <div class="profile-card-banner">
+          <div class="banner-glow"></div>
+          <div class="banner-pill">{{ target_user.username }}'s Profile</div>
+        </div>
+
+        <div class="profile-card-header">
+          <div class="profile-avatar ring-avatar">
+            {% if user_profile.profile_picture %}
+              <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+            {% else %}
+              <span>{{ target_user.username|first|upper }}</span>
+            {% endif %}
+          </div>
+          <div class="profile-heading">
+            <div class="profile-title-row">
+              <div>
+                <h2>{{ target_user.username }}</h2>
+                {% if target_user.first_name %}
+                  <p class="profile-subtitle">{{ target_user.first_name }} {{ target_user.last_name }}</p>
+                {% endif %}
+              </div>
+              <a href="{% url 'toggle_follow' target_user.id %}" class="btn {% if is_following %}btn-ghost{% else %}btn-primary{% endif %}">
+                {% if is_following %}Unfollow{% else %}Follow{% endif %}
+              </a>
+            </div>
+            <div class="profile-stats">
+              <div class="profile-stat">
+                <strong>{{ posts_count }}</strong>
+                <span>Posts</span>
+              </div>
+              <div class="profile-stat">
+                <strong>{{ follower_count }}</strong>
+                <span>Followers</span>
+              </div>
+              <div class="profile-stat">
+                <strong>{{ following_count }}</strong>
+                <span>Following</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <p class="profile-bio">{{ user_profile.bio|default:"No bio yet" }}</p>
+          <div class="profile-info-grid">
+            <div class="profile-info-card">
+              <span class="profile-label">Joined</span>
+              <strong>{{ target_user.date_joined|date:"M d, Y" }}</strong>
+            </div>
+            <div class="profile-info-card">
+              <a href="{% url 'messages' %}?user_id={{ target_user.id }}" class="btn btn-primary btn-full">Send Message</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-gallery">
+          <div class="gallery-header">
+            <div>
+              <h4>Posts</h4>
+              <p>{{ posts_count }} post{{ posts_count|pluralize }}</p>
+            </div>
+          </div>
+          {% if user_posts %}
+            <div class="gallery-grid">
+              {% for post in user_posts %}
+                <article class="gallery-item post-card">
+                  {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post">
+                  {% else %}
+                    <div class="gallery-empty">{{ post.caption|truncatewords:5 }}</div>
+                  {% endif %}
+                  <div class="gallery-meta">
+                    <strong>{{ post.created_at|date:"M d" }}</strong>
+                    <span>❤️ {{ post.likes_count }} · 💬 {{ post.comments_count }}</span>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="no-posts-message">
+              <p>No posts yet from {{ target_user.username }}</p>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}
