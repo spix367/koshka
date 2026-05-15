@@ -20,17 +20,23 @@
         <span></span><span></span><span></span>
       </button>
       <ul class="nav-links" id="navLinks">
-        <li><a href="/" class="nav-link active">Home</a></li>
-        <li><a href="/about" class="nav-link">About</a></li>
-        <li><a href="/services" class="nav-link">Services</a></li>
-        <li><a href="/contact" class="nav-link">Contact</a></li>
+        <li><a href="{% url 'base' %}" class="nav-link active">Home</a></li>
+        <li><a href="{% url 'about' %}" class="nav-link">About</a></li>
+        <li><a href="{% url 'services' %}" class="nav-link">Services</a></li>
+        <li><a href="{% url 'shop' %}" class="nav-link">Shop</a></li>
+        <li><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
         {% if user.is_authenticated %}
           <li><a href="{% url 'search_users' %}" class="nav-link">Search</a></li>
           <li><a href="{% url 'messages' %}" class="nav-link">Messages</a></li>
           <li><a href="{% url 'profile' %}" class="nav-link">Profile</a></li>
-          <li><a href="{% url 'logout' %}" class="nav-cta">Logout</a></li>
+          <li>
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="nav-cta">Logout</button>
+            </form>
+          </li>
         {% else %}
-          <li><a href="/login" class="nav-cta">Sign In</a></li>
+          <li><a href="{% url 'login' %}" class="nav-cta">Sign In</a></li>
         {% endif %}
       </ul>
     </div>
@@ -54,8 +60,8 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <span class="footer-logo">AppName</span>
-      <p class="footer-copy">&copy; 2026 AppName. All rights reserved.</p>
+      <span class="footer-logo">Emas Shop</span>
+      <p class="footer-copy">&copy; 2026 Emas Shop. All rights reserved.</p>
     </div>
   </footer>
 
@@ -66,7 +72,6 @@
       links.classList.toggle('open');
       toggle.classList.toggle('active');
     });
-
     window.addEventListener('scroll', () => {
       document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 40);
     });

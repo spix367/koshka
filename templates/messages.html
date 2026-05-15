@@ -5,75 +5,156 @@
   <section class="hero">
     <div class="hero-inner">
       <span class="hero-tag">messages</span>
-      <h1 class="hero-title">Messages</h1>
-      <p class="hero-sub">Connect with your followers</p>
+      <h1 class="hero-title">Your Conversations</h1>
+      <p class="hero-sub">Chat with your friends and stay connected.</p>
     </div>
   </section>
 
   <div class="messages-container">
     <div class="messages-grid">
-      <aside class="conversations-list card-glow">
+      <aside class="conversations-list">
         <div class="conversations-header">
           <h3>Conversations</h3>
-          <a href="{% url 'search_users' %}" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">New</a>
         </div>
+
         {% if conversations %}
-          <ul class="conversation-items">
-            {% for msg in conversations %}
-              {% with other_user=msg.receiver|default:msg.sender %}
-              <li>
-                <a href="?user_id={{ other_user.id }}" class="conversation-item {% if selected_user_id|add:0 == other_user.id %}active{% endif %}">
+          <div class="conversation-items">
+            {% for conv in conversations %}
+              <div class="conversation-item{% if selected_user and conv.other_user.id == selected_user.id %} active{% endif %}">
+                <a href="?user_id={{ conv.other_user.id }}#messages-chat">
                   <div class="conversation-avatar">
-                    {% if other_user.userprofile.profile_picture %}
-                      <img src="{{ other_user.userprofile.profile_picture.url }}" alt="{{ other_user.username }}">
+                    {% if conv.other_profile.profile_picture %}
+                      <img src="{{ conv.other_profile.profile_picture.url }}" alt="{{ conv.other_user.username }}">
                     {% else %}
-                      <span>{{ other_user.username|first|upper }}</span>
+                      <span>{{ conv.other_user.username|first|upper }}</span>
                     {% endif %}
                   </div>
                   <div class="conversation-info">
-                    <strong>{{ other_user.username }}</strong>
-                    <p>{{ msg.content|truncatewords:5 }}</p>
+                    <strong>{{ conv.other_user.username }}</strong>
+                    <p>{{ conv.last_message|truncatewords:8 }}</p>
                   </div>
+                  {% if conv.unread_count > 0 %}
+                    <span class="conversation-unread">{{ conv.unread_count }}</span>
+                  {% endif %}
                 </a>
-              </li>
-              {% endwith %}
+              </div>
             {% endfor %}
-          </ul>
-        {% else %}
-          <div class="no-conversations">
-            <p>No conversations yet</p>
           </div>
+        {% else %}
+          <p class="no-conversations">No conversations yet. Start one from a user profile.</p>
         {% endif %}
       </aside>
 
-      <section class="messages-chat card-glow">
-        {% if selected_user_id %}
+      <section id="messages-chat" class="messages-chat">
+        {% if selected_user %}
           <div class="chat-header">
-            <h3>{{ selected_user.username }}</h3>
+            <div>
+              <h3>{{ selected_user.username }}</h3>
+              <p class="hero-sub">Chat history with {{ selected_user.username }}</p>
+            </div>
           </div>
 
           <div class="messages-list">
-            {% for message in messages %}
-              <div class="message-bubble {% if message.sender == user %}sent{% else %}received{% endif %}">
-                <p>{{ message.content }}</p>
-                <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
-              </div>
-            {% endfor %}
+            {% if messages %}
+              {% for message in messages %}
+                <div class="message-row{% if message.sender == user %} sent{% else %} received{% endif %}">
+                  <div class="message-bubble{% if message.sender == user %} sent{% else %} received{% endif %}">
+                    <p>{{ message.content }}</p>
+                    <span class="message-time">{{ message.created_at|date:'M d, H:i' }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="no-chat-selected">No messages yet. Send the first message to {{ selected_user.username }}.</p>
+            {% endif %}
           </div>
 
           <form method="post" action="{% url 'send_message' %}" class="message-form">
             {% csrf_token %}
             <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
-            <textarea name="content" placeholder="Write a message..." class="message-input" rows="3"></textarea>
-            <button type="submit" class="btn btn-primary">Send</button>
+            <textarea name="content" rows="4" placeholder="Write your message..." class="message-input" required></textarea>
+            <button type="submit" class="btn btn-primary btn-full">Send Message</button>
           </form>
         {% else %}
           <div class="no-chat-selected">
-            <p>Select a conversation to start messaging</p>
+            <h3>Select a conversation</h3>
+            <p>Choose someone from the left to open the chat.</p>
           </div>
         {% endif %}
       </section>
     </div>
   </div>
 </main>
+  <script>
+    // Auto-scroll messages, keep focus, and submit via AJAX so page doesn't reload
+    document.addEventListener('DOMContentLoaded', function () {
+      const list = document.querySelector('.messages-list');
+      const textarea = document.querySelector('.message-input');
+      const form = document.querySelector('.message-form');
+
+      function scrollToBottom() {
+        if (list) list.scrollTop = list.scrollHeight;
+      }
+
+      if (list) setTimeout(scrollToBottom, 50);
+
+      if (!form || !textarea) return;
+
+      // restore focus and caret
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+
+      // Submit handler via fetch
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const fd = new FormData(form);
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: fd,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(()=>({error:'Unknown error'}));
+            console.error('Send failed', err);
+            return;
+          }
+
+          const data = await res.json();
+          // append new message to the list
+          if (list) {
+            const row = document.createElement('div');
+            row.className = 'message-row sent';
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble sent';
+            const p = document.createElement('p');
+            p.textContent = data.content;
+            const time = document.createElement('span');
+            time.className = 'message-time';
+            time.textContent = data.created_at;
+            bubble.appendChild(p);
+            bubble.appendChild(time);
+            row.appendChild(bubble);
+            list.appendChild(row);
+            // scroll and clear
+            setTimeout(scrollToBottom, 50);
+            textarea.value = '';
+            textarea.focus();
+          }
+        } catch (error) {
+          console.error('Network error', error);
+        }
+      });
+
+      // Enter key: submit, Shift+Enter = newline
+      textarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
+      });
+    });
+  </script>
 {% endblock %}

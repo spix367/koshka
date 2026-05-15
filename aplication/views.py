@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.http import JsonResponse
 from django.contrib import messages
-from django.contrib.auth import login
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -28,6 +29,11 @@ def login_view(request):
     return render(request, 'accounts/login.html', {'form': form})
 
 
+def logout_view(request):
+    logout(request)
+    return redirect('/')
+
+
 def base(request):
     return render(request, 'base.html')
 
@@ -39,6 +45,18 @@ def contact(request):
 
 def services(request):
     return render(request, 'services.html')
+
+
+def shop(request):
+    # Simple static product list for the shop page; replace with DB models later
+    products = [
+        {'id': 1, 'name': 'Leather Handbag', 'price': '79.99', 'description': 'Stylish leather handbag perfect for everyday use.'},
+        {'id': 2, 'name': 'Classic Sneakers', 'price': '59.99', 'description': 'Comfortable and fashionable sneakers.'},
+        {'id': 3, 'name': 'Vintage Sunglasses', 'price': '29.99', 'description': 'UV-protected retro sunglasses.'},
+        {'id': 4, 'name': 'Wool Scarf', 'price': '19.99', 'description': 'Warm and soft scarf for chilly days.'},
+    ]
+
+    return render(request, 'shop.html', {'products': products})
 
 def register(request):
     if request.method == 'POST':
@@ -96,7 +114,7 @@ def search_users(request):
 @login_required
 def user_detail(request, user_id):
     target_user = get_object_or_404(User, id=user_id)
-    user_profile = UserProfile.objects.get(user=target_user)
+    user_profile, _ = UserProfile.objects.get_or_create(user=target_user)
     user_posts = Post.objects.filter(author=target_user)
     
     is_following = Friendship.objects.filter(follower=request.user, following=target_user).exists()
@@ -180,43 +198,50 @@ def add_comment(request, post_id):
 
 @login_required
 def messages_view(request):
-    # Get all unique conversations
-    sent_messages = Message.objects.filter(sender=request.user)
-    received_messages = Message.objects.filter(receiver=request.user)
-    
-    # Get list of people user has messaged
+    all_messages = Message.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user)
+    ).order_by('-created_at')
+
     conversations = []
     seen_users = set()
-    
-    for msg in sent_messages.order_by('-created_at'):
-        if msg.receiver.id not in seen_users:
-            conversations.append(msg)
-            seen_users.add(msg.receiver.id)
-    
-    for msg in received_messages.order_by('-created_at'):
-        if msg.sender.id not in seen_users:
-            conversations.append(msg)
-            seen_users.add(msg.sender.id)
-    
-    conversations.sort(key=lambda x: x.created_at, reverse=True)
-    
+
+    for msg in all_messages:
+        other_user = msg.receiver if msg.sender == request.user else msg.sender
+        if other_user.id in seen_users:
+            continue
+
+        other_profile, _ = UserProfile.objects.get_or_create(user=other_user)
+        unread_count = Message.objects.filter(
+            sender=other_user,
+            receiver=request.user,
+            is_read=False
+        ).count()
+
+        conversations.append({
+            'other_user': other_user,
+            'other_profile': other_profile,
+            'last_message': msg.content,
+            'last_date': msg.created_at,
+            'unread_count': unread_count,
+        })
+        seen_users.add(other_user.id)
+
     selected_user_id = request.GET.get('user_id')
     messages_list = []
     selected_user = None
-    
+
     if selected_user_id:
         selected_user = get_object_or_404(User, id=selected_user_id)
         messages_list = Message.objects.filter(
             Q(sender=request.user, receiver=selected_user) |
             Q(sender=selected_user, receiver=request.user)
         ).order_by('created_at')
-        
+
         Message.objects.filter(sender=selected_user, receiver=request.user).update(is_read=True)
-    
+
     return render(request, 'messages.html', {
         'conversations': conversations,
         'messages': messages_list,
-        'selected_user_id': selected_user_id,
         'selected_user': selected_user,
     })
 
@@ -226,11 +251,23 @@ def send_message(request):
     if request.method == 'POST':
         receiver_id = request.POST.get('receiver_id')
         content = request.POST.get('content', '').strip()
-        
+
         if receiver_id and content:
             receiver = get_object_or_404(User, id=receiver_id)
-            Message.objects.create(sender=request.user, receiver=receiver, content=content)
+            msg = Message.objects.create(sender=request.user, receiver=receiver, content=content)
             messages.success(request, 'Message sent!')
-            return redirect('messages')
-    
+            # If request is AJAX, return JSON so client can append without full reload
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'id': msg.id,
+                    'content': msg.content,
+                    'sender_id': request.user.id,
+                    'sender_username': request.user.username,
+                    'created_at': msg.created_at.strftime('%b %d, %H:%M'),
+                }, status=201)
+            return redirect(f"{reverse('messages')}?user_id={receiver_id}#messages-chat")
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Receiver and content required.'}, status=400)
+
     return redirect('messages')
