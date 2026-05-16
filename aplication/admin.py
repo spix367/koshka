@@ -33,3 +33,11 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('sender', 'receiver', 'is_read', 'created_at')
     search_fields = ('sender__username', 'receiver__username', 'content')
     date_hierarchy = 'created_at'
+    from django.contrib import admin
+from .models import Product
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'price', 'tag', 'created_at']
+    list_filter = ['tag']
+    search_fields = ['name']

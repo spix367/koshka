@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import UserProfile, Product
+
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(
@@ -56,3 +57,9 @@ class UserProfileForm(forms.ModelForm):
                 'class': 'form-input'
             }),
         }
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'original_price', 'image', 'tag']

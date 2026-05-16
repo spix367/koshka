@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main class="main-content">
+  <section class="upload-section">
+    <div class="upload-container">
+      <div class="upload-header">
+        <span class="section-label">Admin</span>
+        <h1 class="upload-title">Upload <em>Product</em></h1>
+        <p class="upload-sub">Add a new product to the shop.</p>
+      </div>
+
+      <div class="upload-form-wrap">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="upload-msg upload-msg-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
+          {% csrf_token %}
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Product Name</label>
+              <input type="text" name="name" placeholder="e.g. Leather Tote Bag" required />
+            </div>
+            <div class="form-group">
+              <label>Category / Tag</label>
+              <select name="tag">
+                <option value="new">New</option>
+                <option value="sale">Sale</option>
+                <option value="top">Top Rated</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="3" placeholder="Describe the product..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Price ($)</label>
+              <input type="number" name="price" step="0.01" min="0" placeholder="49.99" required />
+            </div>
+            <div class="form-group">
+              <label>Original Price ($) <span>— optional, shows strikethrough</span></label>
+              <input type="number" name="original_price" step="0.01" min="0" placeholder="89.99" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Product Image</label>
+            <div class="image-upload-area" id="imageArea">
+              <input type="file" name="image" id="imageInput" accept="image/*" />
+              <div class="image-upload-placeholder" id="imagePlaceholder">
+                <span class="upload-icon">📷</span>
+                <p>Click or drag an image here</p>
+                <span>PNG, JPG, WEBP up to 10MB</span>
+              </div>
+              <img id="imagePreview" src="" alt="Preview" style="display:none;" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Upload Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<style>
+.upload-section {
+  padding: calc(var(--nav-h) + 3rem) 2rem 5rem;
+  min-height: 100vh;
+}
+.upload-container {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.upload-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.upload-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.75rem;
+}
+.upload-title em { font-style: normal; color: var(--accent); }
+.upload-sub { color: var(--text-muted); font-weight: 300; }
+
+.upload-form-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+}
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+.form-group label span {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.75rem;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: border-color var(--transition);
+  resize: none;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus { border-color: var(--accent); }
+.form-group select option { background: var(--surface); }
+
+.image-upload-area {
+  position: relative;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  overflow: hidden;
+}
+.image-upload-area:hover { border-color: var(--accent); background: rgba(212,243,68,0.03); }
+.image-upload-area input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+.image-upload-placeholder {
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.upload-icon { font-size: 2.5rem; }
+.image-upload-placeholder p { font-weight: 500; color: var(--text); }
+.image-upload-placeholder span { font-size: 0.8rem; color: var(--text-muted); }
+#imagePreview {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+}
+.upload-msg {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  background: rgba(212,243,68,0.08);
+  border: 1px solid rgba(212,243,68,0.25);
+  color: var(--accent);
+}
+@media (max-width: 560px) {
+  .form-row { grid-template-columns: 1fr; }
+  .form-actions { flex-direction: column; }
+}
+</style>
+
+<script>
+const input = document.getElementById('imageInput');
+const preview = document.getElementById('imagePreview');
+const placeholder = document.getElementById('imagePlaceholder');
+
+input.addEventListener('change', function() {
+  if (this.files && this.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(this.files[0]);
+  }
+});
+</script>
+{% endblock %}

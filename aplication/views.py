@@ -271,3 +271,68 @@ def send_message(request):
                 return JsonResponse({'error': 'Receiver and content required.'}, status=400)
 
     return redirect('messages')
+def shop(request):
+    return render(request, 'shop.html')
+from .models import UserProfile, Friendship, Post, Like, Comment, Message, Product
+
+def base(request):
+    products = Product.objects.all().order_by('-created_at')
+    return render(request, 'base.html', {'products': products})
+from .models import UserProfile, Friendship, Post, Like, Comment, Message, Product
+from .forms import UserProfileForm, CustomUserCreationForm, CustomAuthenticationForm, ProductForm
+
+def base(request):
+    products = Product.objects.all().order_by('-created_at')
+    return render(request, 'base.html', {'products': products})
+
+@login_required
+def upload_product(request):
+    if not request.user.is_superuser:
+        return redirect('/')
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product uploaded successfully!')
+            return redirect('/')
+    else:
+        form = ProductForm()
+    return render(request, 'upload_product.html', {'form': form})
+from .models import UserProfile, Friendship, Post, Like, Comment, Message, Product, Cart, CartItem
+
+@login_required
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        item.quantity += 1
+        item.save()
+    messages.success(request, f'"{product.name}" added to cart!')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+def remove_from_cart(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    item.delete()
+    messages.success(request, 'Item removed from cart.')
+    return redirect('cart')
+
+
+@login_required
+def cart_view(request):
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    return render(request, 'cart.html', {'cart': cart})
+
+
+@login_required
+def update_cart(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    quantity = int(request.POST.get('quantity', 1))
+    if quantity < 1:
+        item.delete()
+    else:
+        item.quantity = quantity
+        item.save()
+    return redirect('cart')
