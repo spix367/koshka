@@ -1,3 +1,7 @@
+from io import BytesIO
+
+from PIL import Image, ImageOps
+from django.core.files.base import ContentFile
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -8,6 +12,22 @@ class UserProfile(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.profile_picture:
+            image = Image.open(self.profile_picture)
+            image = ImageOps.exif_transpose(image)
+            image_format = image.format or 'JPEG'
+            if image_format.upper() == 'JPEG':
+                image = image.convert('RGB')
+            buffer = BytesIO()
+            image.save(buffer, format=image_format.upper() if image_format.upper() in {'PNG', 'JPEG', 'WEBP'} else 'JPEG')
+            self.profile_picture.save(
+                self.profile_picture.name,
+                ContentFile(buffer.getvalue()),
+                save=False,
+            )
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username}'s profile"
@@ -106,8 +126,27 @@ class Product(models.Model):
     review_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def primary_image(self):
+        if self.image:
+            return self.image
+        first_image = self.images.first()
+        return first_image.image if first_image else None
+
     def __str__(self):
         return self.name
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='products/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.product.name} image"
 
 
 class Cart(models.Model):

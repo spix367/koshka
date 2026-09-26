@@ -60,6 +60,11 @@ class UserProfileForm(forms.ModelForm):
 
 
 class ProductForm(forms.ModelForm):
+    images = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={'accept': 'image/*'})
+    )
+
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'original_price', 'image', 'tag']
+        fields = ['name', 'description', 'price', 'original_price', 'tag']

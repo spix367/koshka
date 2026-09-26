@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main class="main-content">
+<section style="padding: calc(var(--nav-h) + 3rem) 2rem 5rem; min-height:100vh;">
+<div style="max-width:1100px;margin:0 auto;">
+
+  <!-- Back -->
+  <a href="/" style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.875rem;margin-bottom:2rem;transition:color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">
+    ← Back to Shop
+  </a>
+
+  <!-- Product Main -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;margin-bottom:5rem;">
+
+    <!-- Image -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;aspect-ratio:1;">
+      {% if product.primary_image %}
+        <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1a1d21;">
+          <svg viewBox="0 0 200 200" fill="none" style="width:120px;height:120px">
+            <rect x="30" y="30" width="140" height="140" rx="12" fill="rgba(212,243,68,0.1)" stroke="rgba(212,243,68,0.25)" stroke-width="2"/>
+            <circle cx="100" cy="100" r="35" fill="rgba(212,243,68,0.08)" stroke="rgba(212,243,68,0.2)" stroke-width="1.5"/>
+          </svg>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div>
+      <div style="margin-bottom:1rem;">
+        <span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:rgba(212,243,68,0.1);border:1px solid rgba(212,243,68,0.25);padding:0.25rem 0.75rem;border-radius:999px;">
+          {{ product.get_tag_display }}
+        </span>
+      </div>
+
+      <h1 style="font-family:var(--font-display);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-0.04em;margin-bottom:1rem;line-height:1.1;">
+        {{ product.name }}
+      </h1>
+
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+        <span style="font-family:var(--font-display);font-size:2.2rem;font-weight:800;color:var(--accent);letter-spacing:-0.04em;">${{ product.price }}</span>
+        {% if product.original_price %}
+          <span style="font-size:1.1rem;color:var(--text-muted);text-decoration:line-through;">${{ product.original_price }}</span>
+          <span style="font-size:0.8rem;font-weight:700;color:#ef5350;background:rgba(239,83,80,0.12);border:1px solid rgba(239,83,80,0.25);padding:0.2rem 0.6rem;border-radius:999px;">
+            Save ${{ product.original_price|floatformat:2 }}
+          </span>
+        {% endif %}
+      </div>
+
+      <div style="color:var(--accent);font-size:0.9rem;margin-bottom:1.5rem;">★★★★★ <span style="color:var(--text-muted)">({{ product.review_count }} reviews)</span></div>
+
+      {% if product.description %}
+      <p style="color:var(--text-muted);line-height:1.8;font-weight:300;margin-bottom:2rem;font-size:1rem;">
+        {{ product.description }}
+      </p>
+      {% endif %}
+
+      <!-- Add to Cart -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        {% if user.is_authenticated %}
+          <form method="POST" action="{% url 'add_to_cart' product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:1rem;padding:1rem;">
+              🛒 Add to Cart
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn btn-primary" style="width:100%;justify-content:center;font-size:1rem;padding:1rem;">
+            Sign in to Buy
+          </a>
+        {% endif %}
+        <a href="{% url 'cart' %}" class="btn btn-ghost" style="width:100%;justify-content:center;">
+          View Cart
+        </a>
+      </div>
+
+      <!-- Features -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;color:var(--text-muted);">
+          <span>🚚</span> Free delivery
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;color:var(--text-muted);">
+          <span>↩️</span> 30-day returns
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;color:var(--text-muted);">
+          <span>🔒</span> Secure payment
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;color:var(--text-muted);">
+          <span>✦</span> Quality checked
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related %}
+  <div>
+    <div style="margin-bottom:2rem;">
+      <span style="display:block;font-size:0.75rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem;">More Like This</span>
+      <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;">Related Products</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;">
+      {% for item in related %}
+      <a href="{% url 'product_detail' item.id %}" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color 0.25s,transform 0.25s;display:block;"
+         onmouseover="this.style.borderColor='rgba(212,243,68,0.3)';this.style.transform='translateY(-4px)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="aspect-ratio:1;background:var(--bg);overflow:hidden;">
+          {% if item.primary_image %}
+            <img src="{{ item.primary_image.url }}" alt="{{ item.name }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+            <div style="width:100%;height:100%;background:#1a1d21;display:flex;align-items:center;justify-content:center;">
+              <svg viewBox="0 0 80 80" fill="none" style="width:40px;height:40px">
+                <rect x="10" y="10" width="60" height="60" rx="6" fill="rgba(212,243,68,0.1)" stroke="rgba(212,243,68,0.2)" stroke-width="1.5"/>
+              </svg>
+            </div>
+          {% endif %}
+        </div>
+        <div style="padding:1rem;">
+          <h3 style="font-family:var(--font-display);font-size:0.9rem;font-weight:700;margin-bottom:0.3rem;">{{ item.name }}</h3>
+          <span style="font-family:var(--font-display);font-size:1rem;font-weight:800;color:var(--accent)">${{ item.price }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+</section>
+</main>
+{% endblock %}

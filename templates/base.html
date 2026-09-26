@@ -21,17 +21,17 @@
         <span></span><span></span><span></span>
       </button>
       <ul class="nav-links" id="navLinks">
-        <li><a href="{% url 'base' %}" class="nav-link active">Home</a></li>
-        <li><a href="{% url 'about' %}" class="nav-link">About</a></li>
-        <li><a href="{% url 'services' %}" class="nav-link">Services</a></li>
-        <li><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+        <li><a href="{% url 'base' %}" class="nav-link {% if request.path == '/' or request.path == '/shop/' %}active{% endif %}">Home</a></li>
+        <li><a href="{% url 'about' %}" class="nav-link {% if request.path == '/about/' %}active{% endif %}">About</a></li>
+        <li><a href="{% url 'services' %}" class="nav-link {% if request.path == '/services/' %}active{% endif %}">Services</a></li>
+        <li><a href="{% url 'contact' %}" class="nav-link {% if request.path == '/contact/' %}active{% endif %}">Contact</a></li>
         {% if user.is_authenticated %}
-          <li><a href="{% url 'search_users' %}" class="nav-link">Search</a></li>
-          <li><a href="{% url 'messages' %}" class="nav-link">Messages</a></li>
-          <li><a href="{% url 'cart' %}" class="nav-link">🛒 Cart</a></li>
-          <li><a href="{% url 'profile' %}" class="nav-link">Profile</a></li>
+          <li><a href="{% url 'search_users' %}" class="nav-link {% if request.path == '/search/' %}active{% endif %}">Search</a></li>
+          <li><a href="{% url 'messages' %}" class="nav-link {% if request.path == '/messages/' %}active{% endif %}">Messages</a></li>
+          <li><a href="{% url 'cart' %}" class="nav-link {% if request.path == '/cart/' %}active{% endif %}">🛒 Cart</a></li>
+          <li><a href="{% url 'profile' %}" class="nav-link {% if request.path == '/profile/' %}active{% endif %}">Profile</a></li>
           {% if user.is_superuser %}
-            <li><a href="{% url 'upload_product' %}" class="nav-link" style="color:var(--accent)">+ Upload</a></li>
+            <li><a href="{% url 'upload_product' %}" class="nav-link {% if request.path == '/upload-product/' %}active{% endif %}" style="color:var(--accent)">+ Upload</a></li>
           {% endif %}
           <li>
             <form method="POST" action="{% url 'logout' %}">
@@ -125,12 +125,21 @@
         </div>
 
         <div class="products-grid">
+          <div style="margin-bottom:2rem;">
+  <form method="GET" action="{% url 'search_products' %}" style="display:flex;gap:0.75rem;max-width:500px;">
+    <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search products..."
+      style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:0.95rem;padding:0.75rem 1rem;outline:none;"
+      onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
           {% for product in products %}
           <div class="product-card" data-tag="{{ product.tag }}">
-            <div class="product-thumb">
+            <a href="{% url 'product_detail' product.id %}">
+<div class="product-thumb">
               <div class="product-thumb-inner">
-                {% if product.image %}
-                  <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;">
+                {% if product.primary_image %}
+                  <img src="{{ product.primary_image.url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;">
                 {% else %}
                   <svg viewBox="0 0 200 220" fill="none" style="width:100%;height:100%">
                     <rect width="200" height="220" fill="#1a1d21"/>
@@ -153,6 +162,7 @@
                 {% endif %}
               </div>
             </div>
+</a>
             <div class="product-info">
               <div class="product-rating">★★★★★ <span>({{ product.review_count }})</span></div>
               <h3 class="product-name">{{ product.name }}</h3>

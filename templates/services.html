@@ -1,43 +1,8 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Services — Emas Shop</title>
-  <link rel="stylesheet" href="{% static 'aplication/main.css' %}">
-  <link rel="stylesheet" href="{% static 'aplication/services.css' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
-</head>
-<body>
 
-  <nav class="navbar">
-    <div class="nav-container">
-      <a href="/" class="nav-logo">
-        <span class="logo-dot"></span>
-        Emas Shop
-      </a>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="/" class="nav-link">Home</a></li>
-        <li><a href="/about" class="nav-link">About</a></li>
-        <li><a href="/services" class="nav-link active">Services</a></li>
-        <li><a href="/contact" class="nav-link">Contact</a></li>
-        {% if user.is_authenticated %}
-          <li><a href="{% url 'profile' %}" class="nav-link">Profile</a></li>
-          <li><a href="{% url 'logout' %}" class="nav-cta">Logout</a></li>
-        {% else %}
-          <li><a href="/login" class="nav-cta">Sign In</a></li>
-        {% endif %}
-      </ul>
-    </div>
-  </nav>
-
+{% block content %}
   <main class="main-content">
-
-    <!-- Hero -->
     <section class="services-hero">
       <div class="services-hero-inner">
         <span class="page-tag">What We Offer</span>
@@ -46,11 +11,9 @@
       </div>
     </section>
 
-    <!-- Services Grid -->
     <section class="services-section">
       <div class="container">
         <div class="services-grid">
-
           <div class="service-card featured">
             <div class="service-icon">🛍️</div>
             <h3>Online Shopping</h3>
@@ -92,12 +55,10 @@
             <p>Our support team is always available via live chat, email, or phone. Real humans, not bots.</p>
             <a href="#" class="service-link">Contact Us →</a>
           </div>
-
         </div>
       </div>
     </section>
 
-    <!-- Pricing -->
     <section class="pricing-section">
       <div class="container">
         <span class="section-label">Membership</span>
@@ -143,27 +104,5 @@
         </div>
       </div>
     </section>
-
   </main>
-
-  <footer class="footer">
-    <div class="footer-inner">
-      <span class="footer-logo">Emas Shop</span>
-      <p class="footer-copy">&copy; 2026 Emas Shop. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <script>
-    const toggle = document.getElementById('navToggle');
-    const links = document.getElementById('navLinks');
-    toggle.addEventListener('click', () => {
-      links.classList.toggle('open');
-      toggle.classList.toggle('active');
-    });
-    window.addEventListener('scroll', () => {
-      document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 40);
-    });
-  </script>
-
-</body>
-</html>
+{% endblock %}
